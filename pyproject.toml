@@ -1,0 +1,9 @@
+[project]
+name = "grid-color-war"
+version = "0.1.0"
+description = "Turn-based 5x5 card-stamping strategy game (console core)."
+requires-python = ">=3.9"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
