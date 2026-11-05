@@ -7,7 +7,7 @@ import pygame
 
 from core import Player
 
-WINDOW_SIZE = (560, 760)
+WINDOW_SIZE = (860, 700)
 
 BACKGROUND = (24, 26, 33)
 PANEL = (36, 39, 49)
@@ -15,6 +15,9 @@ EMPTY_CELL = (58, 62, 74)
 TEXT = (235, 237, 242)
 MUTED = (150, 155, 168)
 WHITE = (255, 255, 255)
+DARK = (40, 44, 56)
+NEUTRAL_CARD = (176, 181, 196)  # upcoming cards: owner not known yet
+WARNING = (240, 190, 70)
 BUTTON = (52, 57, 72)
 BUTTON_HOVER = (74, 82, 104)
 

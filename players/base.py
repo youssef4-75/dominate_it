@@ -16,7 +16,7 @@ class MoveSelector(ABC):
     Implementations can be a console human, a socket client, a neural
     network, an LLM... The game gives them everything they need:
     `game.current_player`, `game.grid`, `game.current_card`,
-    `game.turns_left`, `game.painted_cells(position)`, ...
+    `game.upcoming_cards`, `game.line_streak`, `game.turns_left`, `game.painted_cells(position)`, ...
     Selectors must treat the game as READ-ONLY: only the match runner
     calls `game.play()`.
     """

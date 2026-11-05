@@ -7,6 +7,7 @@ import pygame
 
 from ui.base import AfterMatchChoice, MainChoice, Menu
 from ui.pygame_ui.drawing import Button, draw_text
+from ui.pygame_ui.layout import Layout
 from ui.pygame_ui.theme import BACKGROUND, MUTED, TEXT, WINDOW_SIZE
 from ui.pygame_ui.window import PygameWindow
 
@@ -23,11 +24,12 @@ def main_menu_buttons() -> List[Button]:
 
 
 def after_match_buttons() -> List[Button]:
-    size = (190, 56)
-    y = 640
+    """Shown in the sidebar, next to the game-over board."""
+    size = (230, 56)
+    x = Layout.SIDEBAR_X
     return [
-        Button("Replay", pygame.Rect(WIDTH // 2 - size[0] - 12, y, *size), AfterMatchChoice.REPLAY),
-        Button("Home", pygame.Rect(WIDTH // 2 + 12, y, *size), AfterMatchChoice.HOME),
+        Button("Replay", pygame.Rect(x, 250, *size), AfterMatchChoice.REPLAY),
+        Button("Home", pygame.Rect(x, 322, *size), AfterMatchChoice.HOME),
     ]
 
 

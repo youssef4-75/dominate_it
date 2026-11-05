@@ -5,7 +5,7 @@ duplicating the wording.
 """
 from __future__ import annotations
 
-from typing import Callable
+from typing import Callable, Optional
 
 from core import Game, MoveResult, Player
 
@@ -20,17 +20,31 @@ def describe_start(game: Game, fmt: NameFormatter = plain_name) -> str:
     return f"Game start! {fmt(game.current_player)} begins."
 
 
-def describe_move(result: MoveResult, fmt: NameFormatter = plain_name) -> str:
+def describe_move(
+    result: MoveResult,
+    fmt: NameFormatter = plain_name,
+    streak_limit: Optional[int] = None,
+) -> str:
     name = fmt(result.player)
     text = (
         f"{name} played at row {result.position.row + 1}, "
         f"col {result.position.col + 1} "
         f"({len(result.changed_cells)} cell(s) changed)."
     )
-    if result.new_lines:
+    if result.new_lines and not result.board_flipped:
         text += f"\n  Full line completed: {', '.join(result.new_lines)}!"
-    if result.bonus_turn:
+    if result.board_flipped:
+        opponent = fmt(result.player.other)
+        text += (
+            f"\n  The whole board is {name}! Every cell switches to {opponent}, "
+            f"and {opponent} plays."
+        )
+    elif result.cells_wiped:
+        text += f"\n  Too many lines in a row: {name} loses all cells!"
+    elif result.bonus_turn:
         text += f"\n  {name} plays again!"
+        if streak_limit is not None:
+            text += f" (line streak {result.line_streak}/{streak_limit})"
     return text
 
 

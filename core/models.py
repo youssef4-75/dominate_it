@@ -35,3 +35,6 @@ class MoveResult:
     changed_cells: Tuple[Position, ...]
     new_lines: Tuple[str, ...]  # human readable, e.g. "row 2", "column 4"
     bonus_turn: bool
+    board_flipped: bool = False  # the player filled the whole board: it went to the opponent
+    cells_wiped: bool = False  # too many lines in a row: the player lost all its cells
+    line_streak: int = 0  # consecutive line-completing moves of the player, after this move

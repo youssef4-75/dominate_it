@@ -1,11 +1,11 @@
 """Console implementation of Renderer."""
 from __future__ import annotations
 
-from typing import Callable, Optional
+from typing import Callable, List, Optional
 
-from core import Game, MoveResult, Player, Position
+from core import Card, Game, MoveResult, Player, Position
 from ui.base import Renderer
-from ui.cmd.ansi import BOLD, RESET, cell_block, clear_screen, paint_name
+from ui.cmd.ansi import BOLD, RESET, cell_block, clear_screen, neutral_block, paint_name
 from ui.messages import describe_move, describe_outcome, describe_start
 
 TITLE = f"{BOLD}=== GRID COLOR WAR ==={RESET}"
@@ -27,21 +27,22 @@ class CmdRenderer(Renderer):
         out(f"{TITLE}\n")
         for player in Player:
             out(f"  {paint_name(player, 4)}: {scores[player]:>2} cells")
-        out(f"  Turns left: {game.turns_left} / {game.config.total_turns}\n")
+        out(f"  Turns left: {game.turns_left} / {game.config.total_turns}")
+        limit = game.config.line_streak_limit
+        if limit is not None:
+            out(f"  Line streak: {game.line_streak} / {limit}")
+        out("")
         out(self._board_text(game))
         out("")
         message = (
             describe_start(game, paint_name)
             if last_move is None
-            else describe_move(last_move, paint_name)
+            else describe_move(last_move, paint_name, game.config.line_streak_limit)
         )
         out(message + "\n")
         if not game.is_over:
-            out(
-                f"  {paint_name(game.current_player)}'s card "
-                f"(◆ = center, placed on the cell you choose):\n"
-            )
-            out(self._card_text(game))
+            out("  ◆ = center of the card, placed on the cell you choose\n")
+            out(self._cards_text(game))
             out("")
 
     def render_game_over(self, game: Game) -> None:
@@ -63,16 +64,37 @@ class CmdRenderer(Renderer):
         return "\n".join(lines)
 
     @staticmethod
-    def _card_text(game: Game) -> str:
-        card = game.current_card
-        player = game.current_player
-        lines = []
+    def _card_rows(card: Card, player: Optional[Player]) -> List[str]:
+        """Text rows of one card. `player` None = neutral (upcoming card)."""
+        rows = []
         for dr in range(-card.radius, card.radius + 1):
             blocks = []
             for dc in range(-card.radius, card.radius + 1):
                 colored = Position(dr, dc) in card.offsets
-                blocks.append(
-                    cell_block(player if colored else None, marker=(dr == 0 and dc == 0))
-                )
-            lines.append("      " + " ".join(blocks))
+                center = dr == 0 and dc == 0
+                if player is None:
+                    blocks.append(neutral_block(colored, center))
+                else:
+                    blocks.append(cell_block(player if colored else None, center))
+            rows.append(" ".join(blocks))
+        return rows
+
+    @classmethod
+    def _cards_text(cls, game: Game) -> str:
+        """The current card, followed by the upcoming ones (Next, Then...)."""
+        player = game.current_player
+        card_width, pitch, first_col = 8, 12, 24  # visible width / spacing of 3x3 cards
+        labels = ["Next", "Then"] + [f"+{i}" for i in range(3, 20)]
+
+        title = f"  {player.name}'s card"
+        header = f"  {paint_name(player)}'s card" + " " * (first_col - len(title))
+        header += "".join(labels[i].ljust(pitch) for i in range(len(game.upcoming_cards)))
+
+        current = cls._card_rows(game.current_card, player)
+        upcoming = [cls._card_rows(card, None) for card in game.upcoming_cards]
+        lines = [header]
+        for row in range(len(current)):
+            line = "      " + current[row] + " " * (first_col - 6 - card_width)
+            line += (" " * (pitch - card_width)).join(rows[row] for rows in upcoming)
+            lines.append(line)
         return "\n".join(lines)

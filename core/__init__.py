@@ -5,7 +5,6 @@ from core.config import GameConfig
 from core.errors import InvalidMoveError
 from core.game import Game
 from core.models import Cell, Grid, MoveResult, Player, Position
-from core.vars import *
 
 __all__ = [
     "Board", "Card", "CardSource", "RandomCardSource", "GameConfig",

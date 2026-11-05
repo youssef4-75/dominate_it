@@ -30,6 +30,17 @@ class Board:
             self._check(position)
             self._cells[position[0]][position[1]] = player
 
+    def is_filled_with(self, player: Player) -> bool:
+        return all(cell is player for row in self._cells for cell in row)
+
+    def fill(self, player: Player) -> None:
+        """Give every cell to `player`."""
+        self._cells = [[player] * self._size for _ in range(self._size)]
+
+    def clear_player(self, player: Player) -> None:
+        """Make every cell owned by `player` neutral again."""
+        self._cells = [[None if cell is player else cell for cell in row] for row in self._cells]
+
     def count(self, player: Player) -> int:
         return sum(row.count(player) for row in self._cells)
 
