@@ -4,14 +4,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from core.models import Player
-
+from core.vars import BOARD_SIZE, TURNS_PER_PLAYER, CARD_SIZE, CARD_COLORED_CELLS
 
 @dataclass(frozen=True)
 class GameConfig:
-    board_size: int = 5
-    card_size: int = 3  # must be odd so the card has a center
-    colored_cells: int = 4  # colored cells on each card
-    total_turns: int = 50  # shared by both players (bonus moves count)
+    board_size: int = BOARD_SIZE
+    card_size: int = CARD_SIZE  # must be odd so the card has a center
+    colored_cells: int = CARD_COLORED_CELLS  # colored cells on each card
+    total_turns: int = TURNS_PER_PLAYER # shared by both players (bonus moves count)
     diagonals_count: bool = True  # do diagonals count as "full lines"?
     first_player: Player = Player.RED
 
