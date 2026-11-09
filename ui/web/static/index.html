@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grid Color War</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main>
+    <!-- HOME PAGE: the settings of the next game, then Play -->
+    <section id="home" class="screen">
+      <h1>GRID COLOR WAR</h1>
+      <p class="tagline">Stamp cards, paint the grid, win the most cells.</p>
+
+      <form id="settings" class="settings" autocomplete="off">
+        <fieldset class="panel">
+          <legend>Game</legend>
+          <div id="params"></div>
+        </fieldset>
+        <fieldset class="panel">
+          <legend>Rules</legend>
+          <div id="rules-list"></div>
+        </fieldset>
+      </form>
+
+      <p id="config-error" class="config-error hidden" role="alert"></p>
+      <div class="home-actions">
+        <button id="play-btn" class="btn" type="button">Play</button>
+        <button id="defaults-btn" class="btn secondary" type="button">Defaults</button>
+      </div>
+    </section>
+
+    <!-- MATCH -->
+    <section id="match" class="screen hidden">
+      <h1 class="title">GRID COLOR WAR</h1>
+
+      <div class="layout">
+        <div class="board-col">
+          <div class="turns">Turns left: <strong id="turns"></strong></div>
+          <div id="scores" class="scores"></div>
+
+          <div class="board-wrap">
+            <div id="board" class="board" role="grid" aria-label="Game board"></div>
+            <div id="gameover" class="gameover hidden">
+              <h2>GAME OVER</h2>
+              <p id="final-scores" class="final"></p>
+              <p id="outcome" class="outcome"></p>
+            </div>
+          </div>
+
+          <div id="message" class="message" aria-live="polite"></div>
+        </div>
+
+        <aside class="sidebar">
+          <div id="cards-block">
+            <h3 id="current-title"></h3>
+            <div id="current-card" class="card big"></div>
+            <div id="card-note" class="card-note"></div>
+            <div id="next-block">
+              <h3 class="muted">Coming next</h3>
+              <div id="next-cards" class="next-cards"></div>
+            </div>
+            <div id="streak" class="streak"></div>
+          </div>
+          <div id="actions" class="actions hidden">
+            <button id="replay-btn" class="btn" type="button">Replay</button>
+            <button id="home-btn" class="btn" type="button">Home</button>
+          </div>
+        </aside>
+      </div>
+
+      <p id="rules" class="rules"></p>
+      <p id="hint" class="hint">Click a cell to stamp the card &nbsp;|&nbsp; Esc: quit to home</p>
+    </section>
+
+    <div id="error" class="error hidden" role="alert"></div>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -22,11 +22,13 @@ class Layout:
     CARD_ORIGIN = (SIDEBAR_X, 156)  # current card (top-left)
     CARD_CELL = 40
     CARD_GAP = 4
-    NEXT_ORIGIN = (SIDEBAR_X, 336)  # upcoming cards (top-left of the first one)
+    CARD_NOTE_POS = (SIDEBAR_X, 294)  # rule note under the current card (e.g. "Catch-up boost")
+    NEXT_ORIGIN = (SIDEBAR_X, 384)  # upcoming cards (top-left of the first one)
     NEXT_CELL = 26
     NEXT_GAP = 3
     NEXT_SPACING = 26  # space between two upcoming cards
-    STREAK_POS = (SIDEBAR_X, 452)
+    STREAK_POS = (SIDEBAR_X, 500)
+    RULES_POS = (SIDEBAR_X, 596)  # list of active rules
 
     def __init__(self, board_size: int) -> None:
         self.board_size = board_size

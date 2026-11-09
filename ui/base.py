@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Optional
 
-from core import Game, MoveResult
+from core import Game, GameConfig, MoveResult
 
 
 class MainChoice(Enum):
@@ -35,6 +35,14 @@ class Menu(ABC):
 
     @abstractmethod
     def ask_main_choice(self) -> MainChoice: ...
+
+    @abstractmethod
+    def ask_game_config(self, current: GameConfig) -> Optional[GameConfig]:
+        """Let the player adjust the settings of the NEXT game (players, rules...).
+
+        `current` is proposed. Returns the settings to use, or None to go back.
+        A UI without a settings screen just returns `current`.
+        """
 
     @abstractmethod
     def ask_after_match(self) -> AfterMatchChoice: ...

@@ -1,8 +1,9 @@
 """Console implementation of Menu."""
 from __future__ import annotations
 
-from typing import Callable
+from typing import Callable, Optional
 
+from core import GameConfig
 from ui.base import AfterMatchChoice, MainChoice, Menu
 from ui.cmd.ansi import BOLD, RESET, clear_screen
 
@@ -29,6 +30,10 @@ class CmdMenu(Menu):
                 return MainChoice.PLAY
             if choice == "2":
                 return MainChoice.QUIT
+
+    def ask_game_config(self, current: GameConfig) -> Optional[GameConfig]:
+        """No settings screen in the console: use the command-line options (--players, --disable...)."""
+        return current
 
     def ask_after_match(self) -> AfterMatchChoice:
         answer = self._input("Replay (r) or go back to home page (h)? ").strip().lower()

@@ -2,7 +2,7 @@ import random
 
 import pytest
 
-from core import Game, GameConfig, Position, RandomCardSource
+from core import Game, GameConfig, Position, RandomCardSource, RuleSet
 from main import build_application
 from players import MatchAborted
 from ui import AfterMatchChoice, MainChoice
@@ -17,8 +17,8 @@ def test_parse_position():
         assert parse_position(bad, 5) is None
 
 
-def new_game():
-    config = GameConfig()
+def new_game(config=None):
+    config = config or GameConfig()
     return Game(config, RandomCardSource.from_config(config, random.Random(0)))
 
 
@@ -69,7 +69,7 @@ def test_whole_app_with_scripted_console():
     runner = MatchRunner(
         new_game,
         CmdRenderer(out.append, lambda: None),
-        {Player.RED: human, Player.BLUE: human},
+        human,
     )
     Application(CmdMenu(ask, out.append, lambda: None), runner).run()
     text = "\n".join(out)
@@ -89,7 +89,7 @@ def test_main_uses_pygame_by_default_and_cmd_on_request(monkeypatch):
         def run(self):
             pass
 
-    def fake_build(ui):
+    def fake_build(config=None, ui=None):
         seen.append(ui)
         return FakeApp()
 
@@ -97,3 +97,44 @@ def test_main_uses_pygame_by_default_and_cmd_on_request(monkeypatch):
     main.main([])
     main.main(["--ui", "cmd"])
     assert seen == ["pygame", "cmd"]
+
+
+def test_rule_switches_reach_the_game_config(monkeypatch, capsys):
+    import main
+
+    configs = []
+
+    class FakeApp:
+        def run(self):
+            pass
+
+    monkeypatch.setattr(main, "build_application", lambda config=None, ui=None: configs.append(config) or FakeApp())
+    main.main(["--ui", "cmd", "--disable", "catch_up_cards", "--enable", "full_board_flip",
+               "--set", "line_streak_wipe.limit=2"])
+    rules = configs[0].rules
+    assert not rules.is_enabled("catch_up_cards") and rules.is_enabled("full_board_flip")
+    assert rules.option("line_streak_wipe", "limit") == 2
+
+
+def test_build_ruleset_from_command_line_values():
+    from main import build_ruleset
+
+    assert build_ruleset().names == RuleSet.default().names
+    assert build_ruleset(only=["line_bonus,full_board_win"]).names == ("full_board_win", "line_bonus")
+    assert build_ruleset(only=["none"]).names == ()
+    assert build_ruleset(only=["none"], enable=["line_bonus"]).names == ("line_bonus",)
+    assert build_ruleset(disable=["catch_up_cards", "line_bonus"]).names == ("full_board_win", "line_streak_wipe")
+    assert build_ruleset(settings=["catch_up_cards.gap=4"]).option("catch_up_cards", "gap") == 4
+    for bad in (dict(enable=["nope"]), dict(settings=["line_bonus"]), dict(settings=["line_bonus.x=1"])):
+        with pytest.raises(ValueError):
+            build_ruleset(**bad)
+
+
+def test_list_rules_and_bad_rule_names_on_the_command_line(capsys):
+    import main
+
+    main.main(["--list-rules", "--disable", "line_bonus"])
+    out = capsys.readouterr().out
+    assert "[x] full_board_win" in out and "[ ] line_bonus" in out and "[ ] full_board_flip" in out
+    with pytest.raises(SystemExit):
+        main.main(["--enable", "nope", "--list-rules"])

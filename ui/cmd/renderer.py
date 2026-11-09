@@ -5,8 +5,8 @@ from typing import Callable, List, Optional
 
 from core import Card, Game, MoveResult, Player, Position
 from ui.base import Renderer
-from ui.cmd.ansi import BOLD, RESET, cell_block, clear_screen, neutral_block, paint_name
-from ui.messages import describe_move, describe_outcome, describe_start
+from ui.cmd.ansi import BOLD, DIM, RESET, cell_block, clear_screen, neutral_block, paint_name
+from ui.messages import describe_move, describe_outcome, describe_rules, describe_start
 
 TITLE = f"{BOLD}=== GRID COLOR WAR ==={RESET}"
 
@@ -25,10 +25,11 @@ class CmdRenderer(Renderer):
         scores = game.scores()
         self._clear()
         out(f"{TITLE}\n")
-        for player in Player:
-            out(f"  {paint_name(player, 4)}: {scores[player]:>2} cells")
+        width = max(len(p.name) for p in game.players)
+        for player in game.players:
+            out(f"  {paint_name(player, width)}: {scores[player]:>2} cells")
         out(f"  Turns left: {game.turns_left} / {game.config.total_turns}")
-        limit = game.config.line_streak_limit
+        limit = game.line_streak_limit
         if limit is not None:
             out(f"  Line streak: {game.line_streak} / {limit}")
         out("")
@@ -37,21 +38,21 @@ class CmdRenderer(Renderer):
         message = (
             describe_start(game, paint_name)
             if last_move is None
-            else describe_move(last_move, paint_name, game.config.line_streak_limit)
+            else describe_move(last_move, paint_name)
         )
         out(message + "\n")
         if not game.is_over:
             out("  ◆ = center of the card, placed on the cell you choose\n")
             out(self._cards_text(game))
+            if game.current_card.note:
+                out(f"\n  {BOLD}{game.current_card.note}{RESET}")
             out("")
+        out(f"  {DIM}{describe_rules(game)}{RESET}")
 
     def render_game_over(self, game: Game) -> None:
         scores = game.scores()
         self._print(f"{BOLD}=== GAME OVER ==={RESET}")
-        self._print(
-            f"  {paint_name(Player.RED)}: {scores[Player.RED]}   "
-            f"{paint_name(Player.BLUE)}: {scores[Player.BLUE]}"
-        )
+        self._print("  " + "   ".join(f"{paint_name(p)}: {scores[p]}" for p in game.players))
         self._print(f"\n  {BOLD}{describe_outcome(game, paint_name)}{RESET}\n")
 
     # -- helpers -----------------------------------------------------------

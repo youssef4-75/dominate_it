@@ -5,7 +5,7 @@ duplicating the wording.
 """
 from __future__ import annotations
 
-from typing import Callable, Optional
+from typing import Callable
 
 from core import Game, MoveResult, Player
 
@@ -20,36 +20,30 @@ def describe_start(game: Game, fmt: NameFormatter = plain_name) -> str:
     return f"Game start! {fmt(game.current_player)} begins."
 
 
-def describe_move(
-    result: MoveResult,
-    fmt: NameFormatter = plain_name,
-    streak_limit: Optional[int] = None,
-) -> str:
+def describe_move(result: MoveResult, fmt: NameFormatter = plain_name) -> str:
+    """The move, then what each rule did (the rules own their wording: RuleEvent.text)."""
     name = fmt(result.player)
+    following = fmt(result.next_player) if result.next_player is not None else ""
     text = (
         f"{name} played at row {result.position.row + 1}, "
         f"col {result.position.col + 1} "
         f"({len(result.changed_cells)} cell(s) changed)."
     )
-    if result.new_lines and not result.board_flipped:
-        text += f"\n  Full line completed: {', '.join(result.new_lines)}!"
-    if result.board_flipped:
-        opponent = fmt(result.player.other)
-        text += (
-            f"\n  The whole board is {name}! Every cell switches to {opponent}, "
-            f"and {opponent} plays."
-        )
-    elif result.cells_wiped:
-        text += f"\n  Too many lines in a row: {name} loses all cells!"
-    elif result.bonus_turn:
-        text += f"\n  {name} plays again!"
-        if streak_limit is not None:
-            text += f" (line streak {result.line_streak}/{streak_limit})"
+    for event in result.events:
+        for line in event.text.format(player=name, next=following).splitlines():
+            text += f"\n  {line}"
     return text
 
 
+def describe_rules(game: Game) -> str:
+    """One line listing the rules in force."""
+    return "Rules: " + (", ".join(game.rule_names) if game.rule_names else "none (plain game)")
+
+
 def describe_outcome(game: Game, fmt: NameFormatter = plain_name) -> str:
-    winner = game.winner()
-    if winner is None:
+    winners = game.winners()
+    if len(winners) == 1:
+        return f"{fmt(winners[0])} wins!"
+    if len(winners) == len(game.players):
         return "It's a draw!"
-    return f"{fmt(winner)} wins!"
+    return " and ".join(fmt(w) for w in winners) + " tie for the win!"

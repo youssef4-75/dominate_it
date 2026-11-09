@@ -1,0 +1,10 @@
+{
+  "name": "grid-color-war-e2e",
+  "private": true,
+  "type": "module",
+  "description": "Optional end-to-end test of the website, in a real headless Chrome.",
+  "dependencies": {
+    "@sparticuz/chromium": "^153.0.0",
+    "puppeteer-core": "^25.16.0"
+  }
+}

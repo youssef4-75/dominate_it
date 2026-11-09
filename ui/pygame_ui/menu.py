@@ -5,9 +5,11 @@ from typing import Callable, Dict, List, Optional, TypeVar
 
 import pygame
 
+from core import GameConfig
 from ui.base import AfterMatchChoice, MainChoice, Menu
 from ui.pygame_ui.drawing import Button, draw_text
 from ui.pygame_ui.layout import Layout
+from ui.pygame_ui.settings import SettingsScreen
 from ui.pygame_ui.theme import BACKGROUND, MUTED, TEXT, WINDOW_SIZE
 from ui.pygame_ui.window import PygameWindow
 
@@ -50,6 +52,9 @@ class PygameMenu(Menu):
             pygame.K_ESCAPE: MainChoice.QUIT, pygame.K_2: MainChoice.QUIT,
         }
         return self._wait(main_menu_buttons(), keys, MainChoice.QUIT, draw_background)
+
+    def ask_game_config(self, current: GameConfig) -> Optional[GameConfig]:
+        return SettingsScreen(self._window).run(current)
 
     def ask_after_match(self) -> AfterMatchChoice:
         final_screen = self._window.screen.copy()  # the game-over scene

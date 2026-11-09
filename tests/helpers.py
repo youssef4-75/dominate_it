@@ -1,7 +1,7 @@
 """Test doubles shared by the test modules."""
 import itertools
 
-from core import Card, CardSource, Position
+from core import Card, CardSource, Game, GameConfig, Position
 from players import MatchAborted, MoveSelector
 from ui import AfterMatchChoice, MainChoice, Menu, Renderer
 
@@ -46,16 +46,30 @@ class RecordingRenderer(Renderer):
 
 
 class ScriptedMenu(Menu):
-    def __init__(self, main_choices, after_choices=()):
+    """Answers from lists. `configs` are what the settings screen returns (None = back);
+    when the list is exhausted the proposed settings are accepted."""
+
+    def __init__(self, main_choices, after_choices=(), configs=()):
         self._main = iter(main_choices)
         self._after = iter(after_choices)
+        self._configs = iter(configs)
         self.goodbyes = 0
+        self.proposed = []  # settings proposed to the player, in order
 
     def ask_main_choice(self) -> MainChoice:
         return next(self._main)
+
+    def ask_game_config(self, current):
+        self.proposed.append(current)
+        return next(self._configs, current)
 
     def ask_after_match(self) -> AfterMatchChoice:
         return next(self._after)
 
     def show_goodbye(self):
         self.goodbyes += 1
+
+
+def fixed_game_factory(*cards):
+    """A game factory (config -> Game) that always deals the same cards."""
+    return lambda config: Game(config, FixedCardSource(*cards))

@@ -41,3 +41,17 @@ def test_snapshot_is_a_copy():
     snap = board.snapshot()
     board.paint([Position(0, 0)], Player.RED)
     assert snap[0][0] is None
+
+
+def test_players_are_compared_by_value_not_identity():
+    """Two Player objects with the same name and color are the same player."""
+    copy = Player("RED", Player.RED.color)
+    assert copy is not Player.RED and copy == Player.RED
+    board = Board(2)
+    board.paint([Position(0, 0), Position(0, 1)], Player.RED)
+    assert board.count(copy) == 2
+    assert board.completed_lines(copy) == {"row 1"}
+    board.fill(copy)
+    assert board.is_filled_with(Player.RED)
+    board.clear_player(copy)
+    assert board.count(Player.RED) == 0

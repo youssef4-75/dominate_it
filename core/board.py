@@ -30,8 +30,12 @@ class Board:
             self._check(position)
             self._cells[position[0]][position[1]] = player
 
+    def is_full(self) -> bool:
+        """True when no cell is neutral any more (whoever owns them)."""
+        return all(cell is not None for row in self._cells for cell in row)
+
     def is_filled_with(self, player: Player) -> bool:
-        return all(cell is player for row in self._cells for cell in row)
+        return all(cell == player for row in self._cells for cell in row)
 
     def fill(self, player: Player) -> None:
         """Give every cell to `player`."""
@@ -39,7 +43,7 @@ class Board:
 
     def clear_player(self, player: Player) -> None:
         """Make every cell owned by `player` neutral again."""
-        self._cells = [[None if cell is player else cell for cell in row] for row in self._cells]
+        self._cells = [[None if cell == player else cell for cell in row] for row in self._cells]
 
     def count(self, player: Player) -> int:
         return sum(row.count(player) for row in self._cells)
@@ -49,7 +53,7 @@ class Board:
         return frozenset(
             label
             for label, positions in self._lines()
-            if all(self.get(p) is player for p in positions)
+            if all(self.get(p) == player for p in positions)
         )
 
     def snapshot(self) -> Grid:
