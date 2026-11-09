@@ -14,8 +14,8 @@ class GameConfig:
     card_size: int = 3  # must be odd so the card has a center
     colored_cells: int = 4  # colored cells on each card
     total_turns: int = 30  # shared by ALL players (bonus moves count)
-    diagonals_count: bool = True  # do diagonals count as "full lines"?
-    preview_cards: int = 0  # how many upcoming cards are visible (besides the current one)
+    diagonals_count: bool = False  # do diagonals count as "full lines"?
+    preview_cards: int = 1  # how many upcoming cards are visible (besides the current one)
     players: Tuple[Player, ...] = PALETTE[:2]  # in turn order: the first one plays first
     # Which special rules are ON (and their options). See core/rules/.
     rules: RuleSet = field(default_factory=RuleSet.default)
